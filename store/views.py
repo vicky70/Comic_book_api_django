@@ -138,6 +138,14 @@ def PostUserReview(request, comic_id):
         serializer.save(user=request.user, reviews_on_comic=comic)
         return Response({'message':'Review Posted successfully', 'data':serializer.data}, status=status.HTTP_200_OK)
     return Response({'error':'Unable post Review Try again', 'details':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PATCH'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def updateReview(request):
+    serializer = ReviewsSerializer(data=request.data)
+    if serializer.is_valid():
+        newReviw = serializer.authenticate()
 # 
     
 
