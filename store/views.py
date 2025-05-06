@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 
 from .models import Comic, Cart, Order, Reviews, CustomerDetail
-from .serializers import ComicSerializers, CartSerializer, OrderSerializer, ReviewsSerializer, CustomerDetailsSerializers
+from .serializers import ComicSerializers, CartSerializer, OrderSerializer, ReviewsSerializer, CustomerDetailsSerializers, ComicUserSerializer
 
 # @     ()
 
@@ -49,7 +49,7 @@ def deleteCartItem(request, itemID):
 @api_view(['PATCH'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def updateCartItemQuantity(request, itemID, quant):
+def updateCartItemQuantity(request, itemID):
     try:
         cartItem = Cart.objects.get(id=itemID)
         new_quantity = request.data.get('quantity')
@@ -115,7 +115,6 @@ def NewOrder(request, comicID, customerID):
     return Response({'error':'Unable to place Order Try Again','message':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 # Customer Address Endpoint
-
 def addCustomerAddress(request):
     serializer = CustomerDetailsSerializers(data=request.data)
     if serializer.is_valid():
@@ -142,24 +141,29 @@ def PostUserReview(request, comic_id):
 @api_view(['PATCH'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def updateReview(request):
-    serializer = ReviewsSerializer(data=request.data)
+def updateReview(request, comicID):
+    try:
+        comic = Comic.objects.get(pk=comicID)
+    except Comic.DoesNotExist:
+        return Response({'error':'Comic Not Found'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        review = Reviews.objects.get(user=request.user, reviews_on_comic=comic)
+    except Reviews.DoesNotExist:
+        return Response({'error':'Review not found for this comic by the current user'}, status=status.HTTP_400_BAD_REQUEST)
+    serializer = ReviewsSerializer(review,data=request.data, partial=True)
     if serializer.is_valid():
-        newReviw = serializer.authenticate()
-# 
-    
-
-    
-
-
-
-# @api_view(['POST'])
-# def user_singup(request):
-#     serializer = ComicUser(data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response({'message':'User registered successfully'}, status=status.HTTP_201_CREATED)
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response({'message':'Review Update Successfully', 'data':serializer.data}, status=status.HTTP_200_OK)
+    return Response({'error':'Invalid Data Provided', 'error_log':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+#
+@api_view(['POST'])
+def user_singup(request):
+    serializer = ComicUserSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'message':'User registered successfully', 'user': serializer.data}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def user_login(request):
@@ -172,5 +176,5 @@ def user_login(request):
 
     if not user:
         return Response({'error': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-    token, create = Token.objects.get_or_create(user=user)
+    token = Token.objects.get_or_create(user=user)
     return Response({'token': token.key}, status=status.HTTP_200_OK)

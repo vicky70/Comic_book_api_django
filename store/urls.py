@@ -6,6 +6,7 @@ urlpatterns = [
     path('api/comic_details/<int:pk_id>/', views.getOneComic, name='Comic_datials'),
     path('api/getCartItems/', views.getCartItems, name='cartItems'),
     path('api/addToCart/<int:comicID>/', views.addToCart, name='addToCart'),
+    path('api/updateReview/<int:comicID>/', views.updateReview, name='updateReview'),
 
     # review urls 
     path('api/comic_reviews/<int:comic_id>/', views.PostUserReview, name='Review'),

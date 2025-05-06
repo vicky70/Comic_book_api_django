@@ -9,11 +9,24 @@ class CustomerDetailsSerializers(serializers.ModelSerializer):
         model = CustomerDetail
         fields = ['user','name','address','city','state','pincode']
 
+class ComicUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username','email','password']
+
+        def create(self, validate_data):
+            user = User.objects.create_user(
+                username=validate_data['username'],
+                email=validate_data['email'],
+                password=validate_data['password']
+            )
+            return user
+
 class ComicSerializers(serializers.ModelSerializer):
     class Meta:
         model = Comic
         fields = ['id','name','category', 'description', 'original_price', 'discounted_price','rent_price','comic_image']
-
+        
 class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
@@ -42,18 +55,3 @@ class Rental_systemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rental_system
         fields = ['user','comic','rent_start_date', 'rent_end_date','rental_status','rental_plan']
-
-class ComicUser(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-
-    class Meta:
-        model=User
-        fields = ['username','email','password']
-
-        def create(self, validate_data):
-            user = User.objects.create_user(
-                username=validate_data['username'],
-                email = validate_data['email'],
-                password=validate_data['password']
-            )
-            return user

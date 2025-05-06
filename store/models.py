@@ -87,8 +87,7 @@ class Cart(models.Model):
     
     @property
     def price_and_quantity_total(self):
-        return self.product.discounted_price*self.quantity
-    
+        return self.product.discounted_price*self.quantity  
 
 class Order(models.Model):
     STATUS_CHOICES = [
@@ -107,7 +106,6 @@ class Order(models.Model):
 
     def __str__(self):
         return str(self.id)
-
 
 class Reviews(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
