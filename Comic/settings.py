@@ -114,6 +114,10 @@ USE_I18N = True
 
 USE_TZ = True
 
+PAYPAL_CLIENT_ID = 'your-secret-client-id'
+PAYPAL_CLIENT_SECRET = 'your-secret-id'
+PAYPAL_MODE = 'sandbox'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
