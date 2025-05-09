@@ -10,6 +10,7 @@ from rest_framework.authtoken.models import Token
 from .models import Comic, Cart, Order, Reviews, CustomerDetail
 from .serializers import ComicSerializers, CartSerializer, OrderSerializer, ReviewsSerializer, CustomerDetailsSerializers, ComicUserSerializer
 
+from .paypal import paypalrestsdk
 # @     ()
 
 @api_view(['GET'])
@@ -156,7 +157,12 @@ def updateReview(request, comicID):
         return Response({'message':'Review Update Successfully', 'data':serializer.data}, status=status.HTTP_200_OK)
     return Response({'error':'Invalid Data Provided', 'error_log':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         
-#
+# PAYPAL PAYMENT SYSTEM
+@api_view(['POST'])
+def create_payment(resquest):
+    pass
+
+#USER AUTHENTICATION AND AUTHORIZATION
 @api_view(['POST'])
 def user_singup(request):
     serializer = ComicUserSerializer(data=request.data)
