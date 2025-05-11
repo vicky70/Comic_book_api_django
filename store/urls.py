@@ -7,6 +7,11 @@ urlpatterns = [
     path('api/getCartItems/', views.getCartItems, name='cartItems'),
     path('api/addToCart/<int:comicID>/', views.addToCart, name='addToCart'),
     path('api/updateReview/<int:comicID>/', views.updateReview, name='updateReview'),
+    
+    # paypal payment paths
+    path('api/create_payment/', views.create_payment, name='create_payment'),
+    path('api/execute_payment/', views.execute_payment, name='execute_payment'),
+    path('api/execute_success_payment/', views.execute_success_payment, name='execute_success_payment'),
 
     # review urls 
     path('api/comic_reviews/<int:comic_id>/', views.PostUserReview, name='Review'),

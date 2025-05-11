@@ -1,3 +1,4 @@
+import paypalrestsdk.payments
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -160,7 +161,49 @@ def updateReview(request, comicID):
 # PAYPAL PAYMENT SYSTEM
 @api_view(['POST'])
 def create_payment(resquest):
-    pass
+    payment = paypalrestsdk.Payment({
+        "intent":"sale",
+        "payer": {
+            "payment_method": "paypal"
+        },
+        "redirect_urls": {
+            "return_url": "http://localhost:8000/api/execute_success_payment",
+            "cancel_url": "http://localhost:8000/paypal/cancel"
+        },
+        "transactions":[{
+            "amount":{
+                "total": "10.00",
+                "currency":"USD"
+            },
+            "description":"Testing Paypal payment integration"
+        }]
+    })
+
+    if payment.create():
+        for link in payment.links:
+            if link.method == "REDIRECT":
+                return Response({"redirect_link":link.href}, status=status.HTTP_200_OK)
+        return Response({"error":"Redirect url not found"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response({"message":"something is going wrong", "error":payment.error}, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET'])
+def execute_payment(request):
+    payment_id = request.GET.get('paymentId')
+    payer_id = request.GET.get('PayerID')
+
+    if not payment_id or not payer_id:
+        return Response({"error": "Missing paymentId or PayerID"}, status=400)
+    payment = paypalrestsdk.Payment.find(payment_id)
+    
+    if payment.execute({"payer_id": payer_id}):
+        return Response({"message": "Payment executed successfully"})
+    else:
+        return Response(payment.error, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET'])
+def execute_success_payment(resquest):
+    return Response({"message": "payment succedssfull"})
 
 #USER AUTHENTICATION AND AUTHORIZATION
 @api_view(['POST'])
