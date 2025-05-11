@@ -10,6 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      PAYPAL_CLIENT_ID: ${{ secrets.PAYPAL_CLIENT_ID }}
+      PAYPAL_CLIENT_SECRET: ${{ secrets.PAYPAL_CLIENT_SECRET }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
